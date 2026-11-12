@@ -66,6 +66,19 @@ body{
 .cast-cat img{width:150px;height:150px;object-fit:contain;animation:castShake 0.6s ease-in-out infinite}
 @keyframes castShake{0%,100%{transform:rotate(-5deg) translateY(0)}25%{transform:rotate(5deg) translateY(-10px)}50%{transform:rotate(-5deg) translateY(0)}75%{transform:rotate(5deg) translateY(-10px)}}
 
+/* Dice rolling animation */
+.dice-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(254,245,240,.9);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.dice-container{position:relative;width:200px;height:200px}
+.dice{position:absolute;width:60px;height:60px;background:var(--white);border-radius:12px;box-shadow:0 8px 24px var(--shadow);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:var(--rose-deep);animation:diceRoll 0.8s cubic-bezier(.34,1.56,.64,1)}
+.dice:nth-child(1){top:20px;left:20px;animation-delay:0s}
+.dice:nth-child(2){top:20px;right:20px;animation-delay:.1s}
+.dice:nth-child(3){bottom:20px;left:20px;animation-delay:.2s}
+.dice:nth-child(4){bottom:20px;right:20px;animation-delay:.3s}
+@keyframes diceRoll{0%{transform:translateY(-100px) rotate(0deg);opacity:0}50%{transform:translateY(20px) rotate(360deg);opacity:1}70%{transform:translateY(-10px) rotate(540deg)}100%{transform:translateY(0) rotate(720deg);opacity:1}}
+.dice-result{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;animation:popIn .4s ease .6s both}
+@keyframes popIn{from{transform:translate(-50%,-50%) scale(0);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
 /* Speech bubble */
 .speech{position:relative;background:var(--white);border-radius:20px;padding:12px 18px;margin:16px auto;max-width:280px;box-shadow:0 4px 16px var(--shadow);font-size:14px;color:var(--brown);text-align:center}
 .speech::after{content:"";position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);border:10px solid transparent;border-top-color:var(--white)}
@@ -233,57 +246,56 @@ const AXES = [
 ];
 
 const BANK = [
-  { a:'组里临时缺一块负责人，你的第一反应', o:[
-    {t:'我先顶上，边做边调', yan:'yang', wx:'火'},
-    {t:'先把这摊子到底怎么回事看清楚', yan:'yin', wx:'土'} ]},
-  { a:'', o:[
-    {t:'有人当众反驳你，你', yan:'yang', wx:'金'},
-    {t:'有人当众反驳你，你', yan:'yin', wx:'水'} ],
-    alt:[{t:'当场把理由讲清楚', yan:'yang', wx:'金'},{t:'先听明白他到底在说什么', yan:'yin', wx:'水'}]},
-  { a:'', o:[
-    {t:'一个全是陌生人的场合，你会', yan:'yin', wx:'土'},
-    {t:'一个全是陌生人的场合，你会', yan:'yang', wx:'木'} ],
-    alt:[{t:'找个位置坐下，等事情发生', yan:'yin', wx:'土'},{t:'主动找一个同样落单的人开口', yan:'yang', wx:'木'}]},
-  { a:'', o:[
-    {t:'事情彻底卡住了，你的本能是', yan:'yin', wx:'水'},
-    {t:'事情彻底卡住了，你的本能是', yan:'yang', wx:'火'} ],
-    alt:[{t:'顺着卡点往前摸，看它通向哪', yan:'yin', wx:'水'},{t:'推翻重来，先把这口气打回来', yan:'yang', wx:'火'}]},
-  { a:'', o:[
-    {t:'很久不联系的人突然找你帮忙', yan:'yang', wx:'金'},
-    {t:'很久不联系的人突然找你帮忙', yan:'yin', wx:'木'} ],
-    alt:[{t:'先问清楚这事归谁负责，再说帮', yan:'yang', wx:'金'},{t:'先应下来，再看它会长成什么', yan:'yin', wx:'木'}]},
+  /* --- 初爻 · 起/承 --- */
+  { a:'闺蜜突然发消息说心情不好', o:[
+    {t:'立刻打电话过去问怎么了', yan:'yang', wx:'火'},
+    {t:'先想想她最近是不是遇到什么事了', yan:'yin', wx:'土'} ]},
+  { a:'在商场看到一件超好看但有点贵的衣服', o:[
+    {t:'先试穿，好看就买', yan:'yang', wx:'金'},
+    {t:'先逛逛别的店，回来再说', yan:'yin', wx:'水'} ]},
+  { a:'朋友聚会，发现有个陌生人', o:[
+    {t:'主动过去打招呼聊天', yan:'yang', wx:'木'},
+    {t:'先观察一下，等别人介绍', yan:'yin', wx:'土'} ]},
+  { a:'和男朋友/暧昧对象吵架了', o:[
+    {t:'直接说清楚，把问题摊开', yan:'yang', wx:'火'},
+    {t:'先冷静一下，想想谁的问题', yan:'yin', wx:'水'} ]},
+  { a:'周末突然有空，没人约', o:[
+    {t:'马上计划出去浪', yan:'yang', wx:'木'},
+    {t:'先宅着，看心情再说', yan:'yin', wx:'土'} ]},
 
-  { a:'心里压着一件事', o:[
-    {t:'找个人说出来，说着说着才想明白', yan:'yang', wx:'火'},
-    {t:'自己待着，想清楚了再开口', yan:'yin', wx:'土'} ]},
-  { a:'被人认真夸了一次', o:[
-    {t:'表面接住，回家反复想他是不是客气', yan:'yin', wx:'水'},
-    {t:'直接回「对，这块我做得挺好」', yan:'yang', wx:'金'} ]},
-  { a:'你在乎的人状态很差', o:[
-    {t:'陪着，不追问，等他自己愿意讲', yan:'yin', wx:'木'},
-    {t:'直接把「你最近不对劲」说出来', yan:'yang', wx:'土'} ]},
-  { a:'你的意见和所有人相反', o:[
-    {t:'当场讲出来，哪怕不合群', yan:'yang', wx:'火'},
-    {t:'先记下，散场后单独找那个人说', yan:'yin', wx:'水'} ]},
-  { a:'别人问你「最近怎么样」', o:[
-    {t:'如实说，包括不好的那部分', yan:'yang', wx:'金'},
-    {t:'说个「还行」，真的部分留给极少数人', yan:'yin', wx:'木'} ]},
+  /* --- 中爻 · 显/藏 --- */
+  { a:'今天化了个超满意的妆', o:[
+    {t:'疯狂自拍发朋友圈', yan:'yang', wx:'火'},
+    {t:'自己照镜子欣赏，不一定要发', yan:'yin', wx:'土'} ]},
+  { a:'被人夸「你今天好漂亮」', o:[
+    {t:'开心地说「谢谢！我也觉得」', yan:'yang', wx:'金'},
+    {t:'表面淡定，心里乐开花', yan:'yin', wx:'水'} ]},
+  { a:'看到朋友发了很美的旅行照', o:[
+    {t:'直接评论「好美！求带」', yan:'yang', wx:'木'},
+    {t:'默默点赞，私聊问她好不好玩', yan:'yin', wx:'水'} ]},
+  { a:'工作上被老板当众表扬', o:[
+    {t:'大方说谢谢，分享经验', yan:'yang', wx:'火'},
+    {t:'谦虚一下，回去再细想', yan:'yin', wx:'土'} ]},
+  { a:'心里有个小秘密', o:[
+    {t:'找最信任的人说出来', yan:'yang', wx:'金'},
+    {t:'写在日记里，自己消化', yan:'yin', wx:'木'} ]},
 
-  { a:'团队有个你早就看不惯的规矩', o:[
-    {t:'提出来，推动它改掉', yan:'yang', wx:'金'},
-    {t:'改不动，但我能找到绕开它的办法', yan:'yin', wx:'水'} ]},
-  { a:'搬进一座新城市', o:[
-    {t:'先看这座城市要我怎么活，再调整自己', yan:'yin', wx:'土'},
-    {t:'按自己的节奏摆开，让环境慢慢长出来', yan:'yang', wx:'木'} ]},
-  { a:'和一个人的关系总是出问题', o:[
-    {t:'我先改自己那部分，看它会不会变', yan:'yang', wx:'火'},
-    {t:'接受有些关系就是这个形状，不再修', yan:'yin', wx:'水'} ]},
-  { a:'一个完全空白的周末', o:[
-    {t:'提前排好，尽量不被打断', yan:'yang', wx:'金'},
-    {t:'睡醒再看，随当天的状态走', yan:'yin', wx:'木'} ]},
-  { a:'你所处的环境让你不舒服', o:[
-    {t:'忍一段时间，通常会习惯', yan:'yin', wx:'土'},
-    {t:'不习惯。我会改变它，或者走', yan:'yang', wx:'火'} ]}
+  /* --- 上爻 · 塑/随 --- */
+  { a:'合租的室友总是不收拾厨房', o:[
+    {t:'直接贴个值日表在墙上', yan:'yang', wx:'金'},
+    {t:'自己多收拾，等她不好意思', yan:'yin', wx:'水'} ]},
+  { a:'去一家新开的网红店，排队超长', o:[
+    {t:'改天早点来，一定要吃到', yan:'yang', wx:'木'},
+    {t:'算了，换一家差不多的', yan:'yin', wx:'土'} ]},
+  { a:'发现男朋友有个小毛病', o:[
+    {t:'直接说，让他改', yan:'yang', wx:'火'},
+    {t:'慢慢引导，或者自己适应', yan:'yin', wx:'水'} ]},
+  { a:'计划好的旅行突然下雨', o:[
+    {t:'改行程，找室内活动', yan:'yang', wx:'金'},
+    {t:'雨中漫步，也挺浪漫', yan:'yin', wx:'木'} ]},
+  { a:'公司新来了个领导，风格和你不合', o:[
+    {t:'找机会聊聊，看看能不能磨合', yan:'yang', wx:'火'},
+    {t:'先观察，调整自己的方式', yan:'yin', wx:'土'} ]}
 ];
 
 const QLIST = [];
@@ -430,6 +442,10 @@ function pick(i,yan,wx){
   const ax=Math.floor(qi/5);
   if(yan==='yang') votes[ax]++;
   tally[wx]++;
+  
+  // Show dice rolling animation
+  showDiceRoll(yan);
+  
   setTimeout(()=>{
     qi++;
     if(qi%5===0){
@@ -438,7 +454,25 @@ function pick(i,yan,wx){
       renderYaos();
     }
     renderQ();
-  },260);
+  },1000);
+}
+
+function showDiceRoll(yan){
+  const diceValues = yan==='yang' ? [1,3,5,6] : [2,4,6,6];
+  const resultEmoji = yan==='yang' ? '☀️' : '🌙';
+  const overlay = document.createElement('div');
+  overlay.className = 'dice-overlay';
+  overlay.innerHTML = `
+    <div class="dice-container">
+      <div class="dice">${diceValues[0]}</div>
+      <div class="dice">${diceValues[1]}</div>
+      <div class="dice">${diceValues[2]}</div>
+      <div class="dice">${diceValues[3]}</div>
+      <div class="dice-result">${resultEmoji}</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(()=>overlay.remove(), 900);
 }
 function cast(){ show('s-cast'); setTimeout(()=>{ renderResult(); show('s-res'); },1700); }
 
