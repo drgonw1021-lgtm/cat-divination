@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小猫起卦 · 喵星测格</title>
+<style>
+:root{
+  --cream:#fef5f0;
+  --pink:#f8e8f0;
+  --rose:#e8a5b5;
+  --rose-deep:#d48a9a;
+  --beige:#d4a574;
+  --brown:#5a4a42;
+  --brown-light:#8b7a6f;
+  --white:#fff;
+  --shadow:rgba(90,74,66,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  background:linear-gradient(160deg,var(--cream) 0%,var(--pink) 100%);
+  color:var(--brown);
+  line-height:1.8;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+#app{position:relative;max-width:440px;margin:0 auto;min-height:100%;padding:20px}
+.screen{display:none;animation:fadeUp .5s ease both}
+.screen.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+.cat{font-size:64px;text-align:center;margin:20px 0;animation:bounce 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.paw{font-size:24px;opacity:.6;display:inline-block;animation:pawStep 1.5s ease-in-out infinite}
+@keyframes pawStep{0%,100%{opacity:.3;transform:scale(.9)}50%{opacity:.8;transform:scale(1.1)}}
+
+/* Logo */
+.logo{display:flex;flex-direction:column;align-items:center;margin:24px 0 16px}
+.logo-icon{width:200px;height:200px;position:relative;margin-bottom:12px;animation:logoFloat 3s ease-in-out infinite}
+@keyframes logoFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(2deg)}}
+.logo-icon img{width:100%;height:100%;object-fit:contain}
+.logo-text{font-size:32px;font-weight:700;color:var(--rose-deep);letter-spacing:8px;text-shadow:0 2px 8px rgba(232,165,181,.3)}
+
+/* Cat expressions */
+.cat-expr{display:inline-block;position:relative}
+.cat-expr img{width:120px;height:120px;object-fit:contain}
+.cat-expr.thinking{animation:catThink 2s ease-in-out infinite}
+@keyframes catThink{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.cat-expr.shaking{animation:catShake 0.3s ease-in-out infinite}
+@keyframes catShake{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-5px) rotate(-10deg)}75%{transform:translateX(5px) rotate(10deg)}}
+.cat-expr.surprised{animation:catSurprise 1s ease-in-out infinite}
+@keyframes catSurprise{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.cat-expr.proud{animation:catProud 2s ease-in-out infinite}
+@keyframes catProud{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px) rotate(3deg)}}
+
+/* Quiz cat mascot */
+.quiz-cat{position:fixed;bottom:20px;right:20px;z-index:100;pointer-events:none;animation:catPeek 3s ease-in-out infinite}
+.quiz-cat img{width:60px;height:60px;object-fit:contain;border-radius:50%;background:var(--white);box-shadow:0 4px 12px var(--shadow)}
+@keyframes catPeek{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(5deg)}}
+
+/* Casting animation */
+.cast-scene{text-align:center;padding:60px 20px}
+.cast-cat{display:inline-block;position:relative}
+.cast-cat img{width:150px;height:150px;object-fit:contain;animation:castShake 0.6s ease-in-out infinite}
+@keyframes castShake{0%,100%{transform:rotate(-5deg) translateY(0)}25%{transform:rotate(5deg) translateY(-10px)}50%{transform:rotate(-5deg) translateY(0)}75%{transform:rotate(5deg) translateY(-10px)}}
+
+/* Speech bubble */
+.speech{position:relative;background:var(--white);border-radius:20px;padding:12px 18px;margin:16px auto;max-width:280px;box-shadow:0 4px 16px var(--shadow);font-size:14px;color:var(--brown);text-align:center}
+.speech::after{content:"";position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);border:10px solid transparent;border-top-color:var(--white)}
+
+.title{text-align:center;font-size:28px;font-weight:600;color:var(--rose-deep);letter-spacing:6px;margin:16px 0 8px}
+.subtitle{text-align:center;font-size:13px;color:var(--brown-light);letter-spacing:3px;margin-bottom:24px}
+.card-intro{background:var(--white);border-radius:20px;padding:28px 24px;box-shadow:0 8px 32px var(--shadow);margin-bottom:20px}
+.lede{font-size:15px;color:var(--brown);text-align:center;margin-bottom:20px;line-height:1.9}
+.lede b{color:var(--rose-deep);font-weight:600}
+.steps{list-style:none;margin:20px 0}
+.steps li{position:relative;padding:12px 16px 12px 48px;margin-bottom:10px;background:rgba(232,165,181,.08);border-radius:12px;font-size:14px;color:var(--brown);line-height:1.7}
+.steps li::before{content:"🐾";position:absolute;left:16px;top:12px;font-size:18px}
+.steps li b{color:var(--rose-deep);font-weight:600}
+.btn{display:block;width:100%;margin-top:20px;padding:16px;background:linear-gradient(135deg,var(--rose) 0%,var(--rose-deep) 100%);color:var(--white);border:none;border-radius:30px;font-family:inherit;font-size:16px;font-weight:600;letter-spacing:6px;cursor:pointer;box-shadow:0 6px 20px rgba(232,165,181,.4);transition:all .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,165,181,.5)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border:2px solid var(--rose);color:var(--rose-deep);letter-spacing:3px;box-shadow:none;font-size:14px;padding:13px}
+.btn.ghost:hover{background:rgba(232,165,181,.1)}
+.disc{margin-top:16px;font-size:11px;color:var(--brown-light);text-align:center;letter-spacing:1px;line-height:1.6}
+
+.qhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:12px 16px;background:var(--white);border-radius:14px;box-shadow:0 2px 12px var(--shadow)}
+.qnum{font-size:12px;color:var(--brown-light);letter-spacing:1px}
+.axes{display:flex;gap:5px}
+.axis{width:28px;height:4px;background:rgba(232,165,181,.2);border-radius:2px}
+.axis.done{background:var(--rose)}
+.axis.cur{background:var(--beige);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.yaoBox{display:flex;flex-direction:column-reverse;align-items:center;gap:10px;padding:20px 0;min-height:110px}
+.yao{width:110px;height:14px;display:flex;gap:14px;opacity:0;transform:scale(.5) rotate(-10deg);transition:.6s cubic-bezier(.34,1.56,.64,1)}
+.yao.show{opacity:1;transform:none}
+.yao i{height:14px;background:var(--rose);display:block;border-radius:7px;box-shadow:0 2px 8px rgba(232,165,181,.3)}
+.yao.yang i:first-child{flex:1}
+.yao.yin i:first-child{flex:.42}
+.yao.yin i:last-child{flex:.42}
+.yao.lao i{background:var(--beige);box-shadow:0 2px 10px rgba(212,165,116,.4)}
+.ylabel{font-size:11px;color:var(--brown-light);text-align:center;letter-spacing:2px;margin-top:4px}
+.qcard{background:var(--white);border-radius:18px;padding:24px 20px;box-shadow:0 4px 20px var(--shadow);margin-bottom:16px}
+.qtext{font-size:17px;line-height:1.8;margin-bottom:20px;color:var(--brown);font-weight:500}
+.opt{display:block;width:100%;text-align:left;margin-bottom:12px;padding:14px 16px;background:rgba(232,165,181,.06);border:2px solid rgba(232,165,181,.2);color:var(--brown);font-family:inherit;font-size:14.5px;line-height:1.7;border-radius:12px;cursor:pointer;transition:all .2s}
+.opt:hover{background:rgba(232,165,181,.12);border-color:var(--rose);transform:translateX(4px)}
+.opt.sel{background:var(--rose);border-color:var(--rose-deep);color:var(--white)}
+.qhint{font-size:11px;color:var(--brown-light);text-align:center;letter-spacing:2px;margin-top:8px}
+
+#cast{text-align:center;padding-top:80px}
+#cast .spin{font-size:90px;display:inline-block;animation:spin 1.8s ease-in-out}
+@keyframes spin{0%{transform:rotate(0) scale(.5);opacity:0}30%{opacity:1}100%{transform:rotate(720deg) scale(1);opacity:1}}
+#cast p{margin-top:24px;letter-spacing:5px;color:var(--brown-light);font-size:14px}
+
+.card{background:var(--white);border-radius:22px;padding:28px 22px 24px;position:relative;overflow:hidden;box-shadow:0 12px 40px var(--shadow)}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--rose),var(--beige),var(--rose))}
+.card .tri{display:flex;flex-direction:column-reverse;align-items:center;gap:9px;margin:16px 0}
+.card .tri .yao{width:90px}
+.card .tri .yao i{background:var(--brown)}
+.card .tri .yao.lao i{background:var(--rose-deep)}
+.gname{font-size:30px;text-align:center;letter-spacing:3px;font-weight:700;color:var(--rose-deep);margin-top:8px}
+.ghex{text-align:center;font-size:14px;color:var(--brown-light);letter-spacing:2px;margin-top:4px}
+.tagline{text-align:center;font-size:14px;color:var(--brown);margin-top:14px;padding:0 8px;font-weight:500}
+.verdict{margin-top:18px;padding:16px;background:rgba(232,165,181,.06);border-radius:12px;font-size:14px;color:var(--brown);line-height:1.9}
+.wxrow{display:flex;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;background:rgba(212,165,116,.1);border-radius:10px}
+.dot{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.wxrow .t1{font-size:13px;color:var(--brown);font-weight:500}
+.wxrow .t2{font-size:11px;color:var(--brown-light);margin-left:auto;letter-spacing:1px}
+.seal{position:absolute;right:16px;top:16px;width:48px;height:48px;background:var(--rose);color:var(--white);border-radius:50%;font-size:14px;line-height:1.2;text-align:center;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(232,165,181,.4);transform:rotate(8deg)}
+.kv{margin-top:20px}
+.kv .row{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed rgba(232,165,181,.2);font-size:13.5px}
+.kv .k{color:var(--brown-light);flex:none;width:60px;letter-spacing:1px;font-weight:500}
+.kv .v{color:var(--brown);line-height:1.7}
+.badge{display:inline-block;font-size:11px;letter-spacing:1px;padding:3px 9px;border-radius:12px;margin-right:6px;font-weight:500}
+.badge.rose{background:var(--rose);color:var(--white)}
+.badge.beige{background:var(--beige);color:var(--white)}
+.badge.brown{background:var(--brown);color:var(--white)}
+.small{font-size:11.5px;color:var(--brown-light);line-height:1.7}
+.block{margin-top:24px}
+.bt{font-size:14px;letter-spacing:4px;color:var(--rose-deep);margin-bottom:12px;display:flex;align-items:center;gap:10px;font-weight:600}
+.bt::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--rose),transparent)}
+.panel{background:var(--white);border-radius:14px;padding:16px;box-shadow:0 2px 12px var(--shadow);font-size:14px;color:var(--brown);line-height:1.8}
+.panel b{color:var(--rose-deep);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{padding:8px 12px;border:2px solid rgba(232,165,181,.3);border-radius:20px;font-size:12.5px;color:var(--brown);cursor:pointer;background:var(--white);font-family:inherit;transition:all .2s;font-weight:500}
+.chip:hover,.chip.on{border-color:var(--rose);color:var(--rose-deep);background:rgba(232,165,181,.1)}
+.meter{height:6px;background:rgba(232,165,181,.15);border-radius:3px;overflow:hidden;margin:10px 0 14px}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--beige));width:0;transition:width 1s ease;border-radius:3px}
+.grid8{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.gcell{border:2px solid rgba(232,165,181,.2);border-radius:12px;padding:10px 4px;text-align:center;cursor:pointer;transition:all .2s;background:var(--white)}
+.gcell:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow)}
+.gcell .s{font-size:24px;line-height:1.2}
+.gcell .n{font-size:11px;color:var(--brown-light);margin-top:2px;letter-spacing:1px}
+.gcell.me{border-color:var(--rose-deep);background:rgba(232,165,181,.15)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section class="screen on" id="s-intro">
+  <div class="logo">
+    <div class="logo-icon">
+      <img src="images/logo.jpg" alt="小猫起卦">
+    </div>
+    <div class="logo-text">小猫起卦</div>
+  </div>
+  <div class="subtitle">喵 星 测 格 · 八 型 五 运</div>
+  <div class="card-intro">
+    <p class="lede">小猫说：<b>MBTI 用四条轴切出 16 型</b><br>我们用<b>三爻</b>，摇出你的<b>本命格</b>喵～</p>
+    <ul class="steps">
+      <li>三爻对应三才：<b>起手式</b>（地）、<b>能量朝向</b>（人）、<b>与世界</b>（天）</li>
+      <li>每爻由 5 道题投票生成，合出来是一卦 —— 你的<b>本命格</b>，八个之一喵</li>
+      <li>每道题的选项还带着<b>金木水火土</b>。累加最高的那个，是你<b>这一阵子的运</b></li>
+      <li>若某一组五题全选同一边，那爻为<b>老</b>，会变卦 —— 四千人里难出一个哦</li>
+    </ul>
+    <button class="btn" onclick="startQuiz()">起&nbsp;卦&nbsp;喵</button>
+    <button class="btn ghost" onclick="openAtlas()">先看八卦谱系</button>
+    <p class="disc">娱乐向自我观察工具 · 非命理预测 · 结果不构成任何决策建议</p>
+  </div>
+</section>
+
+<section class="screen" id="s-quiz">
+  <div class="quiz-cat">
+    <img src="images/1.gif" alt="思考猫">
+  </div>
+  <div class="qhead">
+    <div class="qnum" id="qProg">第 1 / 15 题</div>
+    <div class="axes" id="qAxes"></div>
+  </div>
+  <div class="yaoBox">
+    <div id="yaoStack"></div>
+    <div class="ylabel" id="yLabel"></div>
+  </div>
+  <div class="qcard">
+    <div class="qtext" id="qText"></div>
+    <div id="qOpts"></div>
+    <div class="qhint" id="qHint"></div>
+  </div>
+  <div style="text-align:center;margin:16px 0">
+    <span class="paw">🐾</span>
+    <span class="paw" style="animation-delay:.3s">🐾</span>
+    <span class="paw" style="animation-delay:.6s">🐾</span>
+  </div>
+</section>
+
+<section class="screen" id="s-cast">
+  <div class="cast-scene">
+    <div style="position:relative;display:inline-block">
+      <span class="cast-sparkle">✨</span>
+      <span class="cast-sparkle">⭐</span>
+      <span class="cast-sparkle">✨</span>
+      <span class="cast-sparkle">⭐</span>
+      <div class="cast-cat">
+        <img src="images/2.gif" alt="摇卦猫">
+      </div>
+    </div>
+    <div class="cast-text">小猫在摇卦喵...</div>
+  </div>
+</section>
+
+<section class="screen" id="s-res"></section>
+<section class="screen" id="s-atlas"></section>
+
+</div>
+
+<script>
+const AXES = [
+  { key:'chu',   pos:'初爻', cai:'地', dim:'起手式', yang:'起', yin:'承', desc:'先出手，还是先接住' },
+  { key:'zhong', pos:'中爻', cai:'人', dim:'能量朝向', yang:'显', yin:'藏', desc:'摊开来说，还是自己消化' },
+  { key:'shang', pos:'上爻', cai:'天', dim:'与世界', yang:'塑', yin:'随', desc:'改造环境，还是适应环境' }
+];
+
+const BANK = [
+  { a:'组里临时缺一块负责人，你的第一反应', o:[
+    {t:'我先顶上，边做边调', yan:'yang', wx:'火'},
+    {t:'先把这摊子到底怎么回事看清楚', yan:'yin', wx:'土'} ]},
+  { a:'', o:[
+    {t:'有人当众反驳你，你', yan:'yang', wx:'金'},
+    {t:'有人当众反驳你，你', yan:'yin', wx:'水'} ],
+    alt:[{t:'当场把理由讲清楚', yan:'yang', wx:'金'},{t:'先听明白他到底在说什么', yan:'yin', wx:'水'}]},
+  { a:'', o:[
+    {t:'一个全是陌生人的场合，你会', yan:'yin', wx:'土'},
+    {t:'一个全是陌生人的场合，你会', yan:'yang', wx:'木'} ],
+    alt:[{t:'找个位置坐下，等事情发生', yan:'yin', wx:'土'},{t:'主动找一个同样落单的人开口', yan:'yang', wx:'木'}]},
+  { a:'', o:[
+    {t:'事情彻底卡住了，你的本能是', yan:'yin', wx:'水'},
+    {t:'事情彻底卡住了，你的本能是', yan:'yang', wx:'火'} ],
+    alt:[{t:'顺着卡点往前摸，看它通向哪', yan:'yin', wx:'水'},{t:'推翻重来，先把这口气打回来', yan:'yang', wx:'火'}]},
+  { a:'', o:[
+    {t:'很久不联系的人突然找你帮忙', yan:'yang', wx:'金'},
+    {t:'很久不联系的人突然找你帮忙', yan:'yin', wx:'木'} ],
+    alt:[{t:'先问清楚这事归谁负责，再说帮', yan:'yang', wx:'金'},{t:'先应下来，再看它会长成什么', yan:'yin', wx:'木'}]},
+
+  { a:'心里压着一件事', o:[
+    {t:'找个人说出来，说着说着才想明白', yan:'yang', wx:'火'},
+    {t:'自己待着，想清楚了再开口', yan:'yin', wx:'土'} ]},
+  { a:'被人认真夸了一次', o:[
+    {t:'表面接住，回家反复想他是不是客气', yan:'yin', wx:'水'},
+    {t:'直接回「对，这块我做得挺好」', yan:'yang', wx:'金'} ]},
+  { a:'你在乎的人状态很差', o:[
+    {t:'陪着，不追问，等他自己愿意讲', yan:'yin', wx:'木'},
+    {t:'直接把「你最近不对劲」说出来', yan:'yang', wx:'土'} ]},
+  { a:'你的意见和所有人相反', o:[
+    {t:'当场讲出来，哪怕不合群', yan:'yang', wx:'火'},
+    {t:'先记下，散场后单独找那个人说', yan:'yin', wx:'水'} ]},
+  { a:'别人问你「最近怎么样」', o:[
+    {t:'如实说，包括不好的那部分', yan:'yang', wx:'金'},
+    {t:'说个「还行」，真的部分留给极少数人', yan:'yin', wx:'木'} ]},
+
+  { a:'团队有个你早就看不惯的规矩', o:[
+    {t:'提出来，推动它改掉', yan:'yang', wx:'金'},
+    {t:'改不动，但我能找到绕开它的办法', yan:'yin', wx:'水'} ]},
+  { a:'搬进一座新城市', o:[
+    {t:'先看这座城市要我怎么活，再调整自己', yan:'yin', wx:'土'},
+    {t:'按自己的节奏摆开，让环境慢慢长出来', yan:'yang', wx:'木'} ]},
+  { a:'和一个人的关系总是出问题', o:[
+    {t:'我先改自己那部分，看它会不会变', yan:'yang', wx:'火'},
+    {t:'接受有些关系就是这个形状，不再修', yan:'yin', wx:'水'} ]},
+  { a:'一个完全空白的周末', o:[
+    {t:'提前排好，尽量不被打断', yan:'yang', wx:'金'},
+    {t:'睡醒再看，随当天的状态走', yan:'yin', wx:'木'} ]},
+  { a:'你所处的环境让你不舒服', o:[
+    {t:'忍一段时间，通常会习惯', yan:'yin', wx:'土'},
+    {t:'不习惯。我会改变它，或者走', yan:'yang', wx:'火'} ]}
+];
+
+const QLIST = [];
+BANK.forEach(q=>{
+  if(q.a) QLIST.push({stem:q.a, opts:q.o});
+  else QLIST.push({stem:q.o[0].t, opts:q.alt});
+});
+
+const WUXING = {
+  金:{name:'金',tone:'肃杀', color:'#d4a574', state:'你最近在清理。想划边界、想做了断、想把没用的东西砍掉喵。', need:'砍完就别再回头看第二眼。'},
+  木:{name:'木',tone:'生发', color:'#8bc48a', state:'你最近在长。有东西刚冒头，还没成形，但不受控制喵。', need:'给它一个能靠的架子，别让它自己乱爬。'},
+  水:{name:'水',tone:'流动', color:'#7ab8d4', state:'你最近在绕。不硬碰，往低处走，也在往深处走喵。', need:'绕可以，但要给自己定一个流向。'},
+  火:{name:'火',tone:'显发', color:'#e8a5b5', state:'你最近在烧。想被看见、想推进、停不下来喵。', need:'备一份不来自别人的燃料。'},
+  土:{name:'土',tone:'承载', color:'#c4a882', state:'你最近在扛。很多重量落到你身上，你还撑着喵。', need:'先卸一件，地球不会因此停。'}
+};
+const WX_ORDER = ['木','火','土','金','水'];
+
+const TYPES = {
+  '111':{ g:'乾', glyph:'☰', label:'乾 · 天行', wx:'金', tri:['起','显','塑'], tagline:'那个自己给自己立目标的人', verdict:'三爻皆阳。你不等人给方向，环境不让你满意，你就自己改喵。', gift:'起势、定调、在没人负责的时候把事情接过来', drain:'等你反复提醒才动的人', shade:'把「需要帮助」当成失格，最后一个人扛完所有', eyes:'可靠，但有点不敢麻烦他', tip:'让别人帮你一次，天不会塌。'},
+  '000':{ g:'坤', glyph:'☷', label:'坤 · 厚德', wx:'土', tri:['承','藏','随'], tagline:'所有人都来找她，但她不找人', verdict:'三爻皆阴。你不是没有主张，你是习惯先把别人的位置接住喵。', gift:'容纳、托底、让散掉的东西重新成形', drain:'把你的稳定当成理所当然的人', shade:'边界长期不响，直到某天身体或情绪替你关上', eyes:'温和好说话，其实最不容易被真正了解', tip:'答应之前先问一次「我自己想要什么」，就一次。'},
+  '100':{ g:'震', glyph:'☳', label:'震 · 惊雷', wx:'木', tri:['起','藏','随'], tagline:'点火的人，不负责烧完', verdict:'一阳动于下。你启动极快，动力闷在里面，外面看着还挺平静喵。', gift:'打破僵局、从零起势、让事情第一次发生', drain:'拖住你不让动的人', shade:'雷声一过就散场，留下一堆别人要收拾的开头', eyes:'突然、有爆发力、不太可预测', tip:'给自己留一件必须做完的事，别只留开始。'},
+  '011':{ g:'巽', glyph:'☴', label:'巽 · 入风', wx:'木', tri:['承','显','塑'], tagline:'不急着表态，但最后都按她说的办了', verdict:'一阴入于下。你不撞开缝隙，你渗进去喵。', gift:'柔性推动、在没有名分的地方把事办了、知道该再进哪一寸', drain:'要求你当场站队的人', shade:'从不正面表态，出了事没人知道主意是谁出的', eyes:'好商量，但很难真的改变她', tip:'关键的那一次，把话说在前面。'},
+  '010':{ g:'坎', glyph:'☵', label:'坎 · 潜渊', wx:'水', tri:['承','显','随'], tagline:'越乱他越冷静的人', verdict:'坎中满 —— 外暗内明。你看着随和，其实心里最有数喵。', gift:'在险中判断、承接混乱、别人慌的时候你还在读局面', drain:'逼你在信息不全时表态的人', shade:'习惯试探、不肯先交付，等于把主动权一直攥在手里', eyes:'深、读不透，可靠但不太好接近', tip:'挑一件事，先把自己交出去一半。'},
+  '101':{ g:'离', glyph:'☲', label:'离 · 附丽', wx:'火', tri:['起','藏','塑'], tagline:'需要被看见，也真的值得被看见', verdict:'离中虚 —— 外明内暗。火要附着东西才烧得住，所以你总得有个燃料喵。', gift:'表达、把冷的场子照亮、让注意力自然聚过来', drain:'从不给你反馈的人', shade:'内核私密又敏感，认可一断就说熄就熄', eyes:'亮眼、有审美、情绪来得快', tip:'备一份不来自别人的燃料。'},
+  '001':{ g:'艮', glyph:'☶', label:'艮 · 停云', wx:'土', tri:['承','藏','塑'], tagline:'需要独处充电，别追问为什么', verdict:'一阳止于上。先接住、不说、但绝不让你推动 —— 这就是「止」喵。', gift:'稳住现场、边界天然存在、能在该停的地方停住', drain:'不停推进你、追问你理由的人', shade:'停太久，把「不着急」活成了「来不及」', eyes:'安静、慢热、有点难约', tip:'给「止」设一个出口，定一个该动的日子。'},
+  '110':{ g:'兑', glyph:'☱', label:'兑 · 初月', wx:'金', tri:['起','显','随'], tagline:'让陌生房间迅速变熟的人', verdict:'兑上缺 —— 口开于上。你主动、外放、顺势，所以人人都舒服喵。', gift:'连接、破冰、把气氛救活、让人愿意开口', drain:'只索取情绪价值、不回应你的人', shade:'怕冷场怕到开始讨好，散场之后自己空', eyes:'好相处、有趣，但好像对谁都一样', tip:'留三个人，可以不讨好。'}
+};
+
+const COMBO = {
+  '乾':{金:'你已经在改环境了，现在还在顺手砍掉不需要的部分喵。',木:'目标正在变大，你开始给自己立一个更难的。',水:'少见的后撤。那不是认输，是读数喵。',火:'全开。这段时间的强度，别人会记很久。',土:'扛得有点多了 —— 乾最不该自己扛喵。'},
+  '坤':{金:'你开始划线了。会有人不习惯，但这条线是对的喵。',木:'有人在替一个新的你打地基，注意是谁。',水:'承载变成了流动，你最近没那么硬扛了喵。',火:'少见的表达期。坤烧起来比谁都久。',土:'土上加土，超重。先卸一件喵。'},
+  '震':{金:'这次点火之前你会先切一次，比过去狠喵。',木:'连着启动。你正同时推开好几扇门。',水:'雷藏在水下，动静变小，力道变大喵。',火:'你正在把话说响，别在最高点停手。',土:'起势撞上责任，走不快，先减一项喵。'},
+  '巽':{金:'渗不动的时候，你开始用硬的了喵。',木:'渗得很顺。你在没名分的地方长成了一条路。',水:'风生水起，你最近的话比平时管用喵。',火:'你罕见地站到明处。会有点晒，但值得。',土:'渗透遇到硬土，慢下来不是失败喵。'},
+  '坎':{金:'你开始做割舍的判断，冷得连自己都意外喵。',木:'水下有东西在长，先别告诉任何人。',水:'水上再加一波。你读局读得更清，也更不想动喵。',火:'险中见明。这段时间适合把结论说出口。',土:'水被土困住。最近的累，是没说出口的累喵。'},
+  '离':{金:'火在削掉多余的光。你变冷了，也更好看了喵。',木:'有燃料了。这段时间的表达，有东西可烧。',水:'水火相煎。外亮内耗，盯紧你的电量喵。',火:'最亮的一段。被看见这件事，该被满足了。',土:'你在替不值得的人保温喵。'},
+  '艮':{金:'边界升级成了墙。先确认防对了人没有喵。',木:'山里在长东西。你的「止」开始有收成。',水:'山下有水。表面没动，心里已经绕完三圈喵。',火:'停太久之后的第一次点火，会烧得很直接。',土:'土压着山。你最近沉，且不肯说为什么沉喵。'},
+  '兑':{金:'你收了笑，把话说准了。这阵子适合谈条件喵。',木:'关系在自然长。你播种的方式特别省力。',水:'悦而流动。你最近很会聊，也很会躲喵。',火:'场子被你点亮。散场后给自己留半小时。',土:'你在替整个气氛负责，太重了 —— 让别人冷一次喵。'}
+};
+
+const GUIWEI = {
+  乾:'金金归位。你这一阵子的清理，就是乾本身的样子。极少见：一个人刚好活成自己的格局喵。',
+  坤:'土土归位。承载不再消耗你，因为它已经是你。这是坤最好的状态喵。',
+  震:'木木归位。起势和生长对齐了。你正在做一件本来就该由你启动的事喵。',
+  巽:'木木归位。渗透有了方向。你不用再说「我随便」，你其实早就定了喵。',
+  坎:'水水归位。读局的人不再被局读。你这一阵子异常清醒，也别到处说喵。',
+  离:'火火归位。燃料是自己。离最难得的一次，燃烧不靠外界认可喵。',
+  艮:'土土归位。山落地成土。你停下来的地方，终于变成了可以住的地方喵。',
+  兑:'金金归位。悦收成了锋。你这次笑着说的话，别人当真了喵。'
+};
+
+const LAO = {
+  chu:{ y:'起手式已经到底。你会从「先出手」滑向「先接住」喵。', n:'你憋太久了。下一次会翻成「这次我先来」。'},
+  zhong:{ y:'表达欲顶到天花板。藏不住了，也别再藏喵。', n:'你把话说回来了。从摊开转为内收，这是收网，不是退让。'},
+  shang:{ y:'塑形到了极限，再往前就是硬碰硬喵。', n:'你打算不再适应这个环境了。这个转念会成真。'}
+};
+
+const ZHI = {
+  乾:'结局是你自己站起来，不靠任何人给方向喵。',
+  坤:'结局是你接住更多，也因此更被需要喵。',
+  震:'结局是一件新事由你启动，雷打出去了喵。',
+  巽:'结局你不声不响地改掉了那条规矩喵。',
+  坎:'结局是你必须穿过一次麻烦，穿过去就通了喵。',
+  离:'结局是你被认真看见一次喵。',
+  艮:'结局是你停下来，而且停得心甘喵。',
+  兑:'结局是一段关系被你说活了喵。'
+};
+
+const SHENG = {木:'火',火:'土',土:'金',金:'水',水:'木'};
+const KE = {木:'土',土:'水',水:'火',火:'金',金:'木'};
+function relation(a,b){
+  if(a===b) return 'bi';
+  if(SHENG[a]===b) return 'wo-sheng';
+  if(SHENG[b]===a) return 'sheng-wo';
+  if(KE[a]===b) return 'wo-ke';
+  return 'ke-wo';
+}
+const REL_TEXT = {
+  'bi':{t:'比和',s:88,d:'同气。你们不需要翻译，一个停顿另一个人就懂喵。<br>风险也在这：两人都等对方先开口，于是谁都没说。有人先动一次，这段关系就活了。'},
+  'sheng-wo':{t:'生我',s:82,d:'对方是你的供给位，且常常不觉得累喵。<br>这类关系最容易失衡 —— 因为接受的一方看不见成本。半年内主动回一次，不必等价，让他知道你有看到。'},
+  'wo-sheng':{t:'我生',s:66,d:'你是输出的一方，你把这段关系养起来的喵。<br>输出到某个程度会突然空。到点就停，不要硬撑到怨气出来 —— 怨气是这个组合唯一的死法。'},
+  'wo-ke':{t:'我克',s:58,d:'你们之间有一根弦，一碰就紧，而且多半是你碰的喵。<br>但克也是雕琢：这段关系里被你改掉的毛病，确实都是真的毛病。少说一句，效果会好很多。'},
+  'ke-wo':{t:'克我',s:62,d:'你在这段关系里会被压住，且压你的那个人不觉得自己在压喵。<br>难受，但这是八个组合里最容易被校正的一个。扛不住就先讲，别用远离代替表达。'}
+};
+function sameG(){
+  return {t:'同卦',s:90,d:'同一个格。你们的优点一模一样，缺点也一模一样 —— 所以你们最烦对方的地方，就是自己身上那块喵。<br>这段关系的用法是拿来做镜子的，不是用来互相确认的。'};
+}
+
+/* Cat expressions for each type */
+function getCatExpr(type){
+  const exprs = {
+    '乾': {img:'images/3.gif', class:'proud', msg:'本喵就是天行健！'},
+    '坤': {img:'images/4.gif', class:'thinking', msg:'嗯...本喵在承载万物喵'},
+    '震': {img:'images/5.gif', class:'surprised', msg:'雷来了！本喵要起飞！'},
+    '巽': {img:'images/6.gif', class:'thinking', msg:'本喵已经渗透进去了...'},
+    '坎': {img:'images/7.gif', class:'proud', msg:'本喵看穿了一切'},
+    '离': {img:'images/8.gif', class:'proud', msg:'看本喵多闪亮！'},
+    '艮': {img:'images/9.gif', class:'thinking', msg:'别吵，本喵要静静'},
+    '兑': {img:'images/640.gif', class:'surprised', msg:'来来来，大家一起玩！'}
+  };
+  return exprs[type.g] || {img:'images/1.gif', class:'', msg:''};
+}
+
+let qi=0, votes=[0,0,0], lines=[], tally={木:0,火:0,土:0,金:0,水:0};
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function startQuiz(){
+  qi=0;votes=[0,0,0];lines=[];tally={木:0,火:0,土:0,金:0,水:0};
+  show('s-quiz'); renderAxisBar(); renderYaos(); renderQ();
+}
+function renderAxisBar(){
+  const gi = Math.floor(qi/5);
+  document.getElementById('qAxes').innerHTML = AXES.map((a,i)=>
+    `<div class="axis ${i<gi?'done':(i===gi?'cur':'')}"></div>`).join('');
+}
+function renderYaos(){
+  const box=document.getElementById('yaoStack');
+  box.innerHTML = lines.map(l=>
+    `<div class="yao ${l.yang?'yang':'yin'} ${l.lao?'lao':''} show"><i></i><i></i></div>`).join('');
+  const done=lines.length;
+  document.getElementById('yLabel').textContent = done? AXES[done-1].pos+' 已成 · '+AXES[done-1].dim : '三爻将自下而上生成喵';
+}
+function renderQ(){
+  if(qi>=15){ cast(); return; }
+  const {stem,opts}=QLIST[qi];
+  const ax=AXES[Math.floor(qi/5)];
+  document.getElementById('qProg').textContent = `第 ${qi+1} / 15 题 · ${ax.pos}`;
+  document.getElementById('qText').textContent = stem;
+  const pair = shuffle([...opts]);
+  document.getElementById('qOpts').innerHTML = pair.map((o,i)=>
+    `<button class="opt" onclick="pick(${i},'${o.yan}','${o.wx}')">${o.t}</button>`).join('');
+  document.getElementById('qHint').textContent = ax.dim+' · '+ax.desc;
+  renderAxisBar();
+}
+function pick(i,yan,wx){
+  document.querySelectorAll('.opt').forEach((b,bi)=>b.classList.toggle('sel',bi===i));
+  const ax=Math.floor(qi/5);
+  if(yan==='yang') votes[ax]++;
+  tally[wx]++;
+  setTimeout(()=>{
+    qi++;
+    if(qi%5===0){
+      const v=votes[ax];
+      lines.push({ yang: v>=3, lao: (v===5||v===0) });
+      renderYaos();
+    }
+    renderQ();
+  },260);
+}
+function cast(){ show('s-cast'); setTimeout(()=>{ renderResult(); show('s-res'); },1700); }
+
+function compute(){
+  const code = lines.map(l=>l.yang?'1':'0').join('');
+  const type = TYPES[code];
+  let best = WX_ORDER[0]; WX_ORDER.forEach(w=>{ if(tally[w]>tally[best]) best=w; });
+  const laos = lines.map((l,i)=>l.lao?AXES[i].key:null).filter(Boolean);
+  const flipped = lines.map(l=>l.lao?(l.yang?'0':'1'):(l.yang?'1':'0')).join('');
+  return {code,type,wx:best,laos,flipCode:flipped,flipType:TYPES[flipped]};
+}
+function yaoHtml(arr){
+  return arr.map(l=>`<div class="yao ${l.yang?'yang':'yin'} ${l.lao?'lao':''} show"><i></i><i></i></div>`).join('');
+}
+function renderResult(){
+  const r=compute();
+  const T=r.type, W=WUXING[r.wx];
+  const guiwei = (T.wx===r.wx);
+  const combo = COMBO[T.g][r.wx];
+  const laon = r.laos.length;
+  let extras='';
+  if(laon){
+    const desc = r.laos.map(k=>{
+      const idx=AXES.findIndex(a=>a.key===k); const l=lines[idx];
+      return `<b>${AXES[idx].pos}</b>${l.yang?'老阳':'老阴'} —— ${l.yang?LAO[k].y:LAO[k].n}`;
+    }).join('<br>');
+    extras = `<div class="block">
+      <div class="bt">变 爻 · ${laon>1?'重':laon} 出</div>
+      <div class="panel">${desc}
+        <div style="margin-top:12px;padding-top:11px;border-top:1px dashed rgba(232,165,181,.2)">
+        <b>${T.g}之${r.flipType.g}</b> —— ${ZHI[r.flipType.g]}</div>
+      </div></div>`;
+  }
+  const badge = guiwei
+    ? `<span class="badge beige">归位</span><span class="small">当运与本命同气，约五分之一的人测得到</span>`
+    : `<span class="small">当运 ≠ 本命（${WUXING[T.wx].name}）：你正处在一个和底色不同的时段</span>`;
+  
+  const catExpr = getCatExpr(T);
+
+  document.getElementById('s-res').innerHTML = `
+    <div class="card">
+      <div class="seal">${T.g}<br>格</div>
+      <div style="text-align:center;margin:10px 0">
+        <div class="cat-expr ${catExpr.class}">
+          <img src="${catExpr.img}" alt="${T.g}猫">
+        </div>
+        <div class="speech">${catExpr.msg}</div>
+      </div>
+      <div class="tri">${yaoHtml(lines)}</div>
+      <div class="gname">${T.label}</div>
+      <div class="ghex">${T.glyph} ${T.tri.join(' · ')} </div>
+      <div class="tagline">${T.tagline}</div>
+      <div class="verdict">${T.verdict}</div>
+      <div class="wxrow">
+        <span class="dot" style="background:${W.color}"></span>
+        <span class="t1">当运 · <b>${r.wx}</b>（${W.tone}）</span>
+        <span class="t2">${badge}</span>
+      </div>
+    </div>
+
+    <div class="kv">
+      <div class="row"><div class="k">当下</div><div class="v">${W.state}</div></div>
+      <div class="row"><div class="k">判词</div><div class="v">${combo}</div></div>
+      <div class="row"><div class="k">天赋</div><div class="v">${T.gift}</div></div>
+      <div class="row"><div class="k">阴影</div><div class="v">${T.shade}</div></div>
+      <div class="row"><div class="k">消耗</div><div class="v">${T.drain}</div></div>
+      <div class="row"><div class="k">别人眼中</div><div class="v">${T.eyes}</div></div>
+      <div class="row"><div class="k">一句</div><div class="v">${T.tip}</div></div>
+      <div class="row"><div class="k">补一句</div><div class="v">${W.need}</div></div>
+    </div>
+
+    ${extras}
+
+    <div class="block">
+      <div class="bt">稀 缺 度</div>
+      <div class="panel small" style="background:none;box-shadow:none;padding:0">
+        本型八型均分，单看型不稀有。稀有度全在下面三层喵：<br>
+        <span class="badge brown">变爻 ${laon?laon+' 爻':'无'}</span>
+        至少一爻变 ≈ 17.7% ｜ 三爻皆变 ≈ 0.024%（约四千人一个）<br>
+        <span class="badge ${guiwei?'beige':'brown'}">归位 ${guiwei?'成':'未'}</span>
+        当运与本命同气 ≈ 20%<br>
+        <span class="badge ${laon&&guiwei?'beige':'brown'}">你的组合</span>
+        ${laon&&guiwei?'变爻 + 归位同时出现，约 3.5%':'变爻与归位同时出现 ≈ 3.5%'}
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="bt">配 一 下 🐱</div>
+      <div class="panel" style="padding-bottom:12px">
+        <div class="small">选对方的本命格，按你们的卦德五行算关系喵。</div>
+        <div class="chips" id="pairChips"></div>
+        <div id="pairOut"></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="bt">全 部 八 格</div>
+      <div class="grid8">${Object.entries(TYPES).map(([c,t])=>
+        `<div class="gcell ${c===r.code?'me':''}" onclick="peek('${c}')">
+           <div class="s">${t.glyph}</div><div class="n">${t.g}</div></div>`).join('')}</div>
+      <div id="peekOut"></div>
+    </div>
+
+    <button class="btn" onclick="copyCard()">复制结果卡文案</button>
+    <button class="btn ghost" onclick="show('s-intro')">再 起 一 卦</button>
+    <p class="disc">娱乐向自我观察工具。变爻与归位会随你的状态漂移，建议隔一季度再起一次喵。<br>非命理预测，不构成任何决策建议。</p>
+  `;
+  buildPair(r);
+}
+function buildPair(r){
+  const chips=document.getElementById('pairChips');
+  chips.innerHTML = Object.entries(TYPES).map(([c,t])=>
+    `<button class="chip" onclick="doPair('${c}','${r.code}',this)">${t.g} · ${t.wx}</button>`).join('');
+}
+function doPair(otherCode,myCode,btn){
+  document.querySelectorAll('#pairChips .chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  const A=TYPES[myCode], B=TYPES[otherCode];
+  const rel = (A.g===B.g) ? sameG() : REL_TEXT[relation(A.wx,B.wx)];
+  document.getElementById('pairOut').innerHTML = `
+    <div style="margin-top:14px;padding-top:14px;border-top:1px dashed rgba(232,165,181,.2)">
+      <div style="font-size:15px;color:var(--brown)">${A.g} × ${B.g}
+        <span class="badge rose" style="margin-left:6px">${rel.t}</span></div>
+      <div class="meter"><i style="width:0"></i></div>
+      <div class="small" style="color:var(--brown-light);font-size:13px;line-height:1.8">${rel.d}</div>
+    </div>`;
+  requestAnimationFrame(()=>{ document.querySelector('#pairOut .meter i').style.width=rel.s+'%'; });
+}
+function peek(c){
+  const t=TYPES[c];
+  document.getElementById('peekOut').innerHTML = `
+    <div class="panel" style="margin-top:12px">
+      <b>${t.label}</b> ${t.glyph} ｜ ${t.tri.join('·')} ｜ 本命${t.wx}<br>
+      ${t.tagline}<br><span class="small" style="color:var(--brown-light)">${t.verdict}</span>
+    </div>`;
+}
+function copyCard(){
+  const r=compute(), T=r.type, W=WUXING[r.wx];
+  const txt = [
+    `【小猫起卦】我的本命格：${T.label} ${T.glyph}`,
+    `${T.tagline}`,
+    `${T.verdict}`,
+    `当运 · ${r.wx}（${W.tone}）｜ ${COMBO[T.g][r.wx]}`,
+    r.laos.length? `${T.g}之${r.flipType.g}：${ZHI[r.flipType.g]}` : '',
+    `—— 起一卦：${location.href}`
+  ].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>alert('已复制喵，可直接发朋友圈或发给别人配对。'))
+   .catch(()=>{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta);
+     ta.select(); document.execCommand('copy'); ta.remove(); alert('已复制喵。'); });
+}
+
+function openAtlas(){
+  show('s-atlas');
+  document.getElementById('s-atlas').innerHTML = `
+    <div class="bt" style="font-size:15px;letter-spacing:5px">八 卦 谱 系 🐱</div>
+    <div class="small" style="margin-bottom:14px">三爻 = 起手式（地）· 能量朝向（人）· 与世界（天）<br>
+    取象直接沿用传统卦德：健顺动入陷丽止悦 —— 玄学在这里是坐标系，不是皮肤喵。</div>
+    ${Object.entries(TYPES).map(([c,t])=>`
+      <div class="panel" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:30px;line-height:1">${t.glyph}</div>
+          <div><b style="font-size:16px">${t.label}</b>
+            <div class="small">${t.tri.join(' · ')} ｜ 本命${t.wx}</div></div>
+        </div>
+        <div style="margin-top:10px;font-size:13.5px;color:var(--brown)">${t.tagline}</div>
+        <div class="small" style="margin-top:6px">${t.verdict}</div>
+        <div class="small" style="color:var(--brown-light);margin-top:6px">阴影：${t.shade}</div>
+      </div>`).join('')}
+    <div class="bt" style="font-size:15px;letter-spacing:5px;margin-top:26px">五 运</div>
+    ${WX_ORDER.map(w=>{const x=WUXING[w];return `
+      <div class="panel" style="margin-bottom:10px;display:flex;gap:11px;align-items:flex-start">
+        <span class="dot" style="background:${x.color};margin-top:7px"></span>
+        <div><b>${w} · ${x.tone}</b><div class="small">${x.state}</div></div>
+      </div>`}).join('')}
+    <div class="bt" style="font-size:15px;letter-spacing:5px;margin-top:26px">生 克 关 系</div>
+    <div class="panel small">
+      比和（同气）· 生我（供给位）· 我生（输出位）· 我克（雕琢）· 克我（被校正）<br>
+      另加一格：同卦（镜子）。共 6 类模板覆盖全部 36 组合喵。
+    </div>
+    <button class="btn" onclick="startQuiz()">起 卦 喵</button>
+    <button class="btn ghost" onclick="show('s-intro')">返回</button>`;
+}
+</script>
+</body>
+</html>
