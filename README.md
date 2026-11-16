@@ -7,6 +7,7 @@
 - 首页（测试厅）：https://drgonw1021-lgtm.github.io/cat-divination/
 - 小猫起卦：https://drgonw1021-lgtm.github.io/cat-divination/index.html
 - 霍格沃茨测格：https://drgonw1021-lgtm.github.io/cat-divination/hp.html
+- 魔法学院测格（网页版，可发链接的付费载体）：https://drgonw1021-lgtm.github.io/cat-divination/magic/
 
 本地直接双击 `index.html` 即可。
 
@@ -16,6 +17,7 @@
 |---|---|
 | `index.html` | 小猫起卦：三爻（起手式/能量朝向/与世界）→ 8 本命格，选项附带五行 → 当运色，共 8×5=40 组合 |
 | `hp.html` | 霍格沃茨测格：四维轴（闯/守 · 心/脑 · 群/单 · 闹/稳）→ 16 角色，选项附带学院倾向 → 分院结果 |
+| `magic/` | 魔法学院测格网页版：`python _build_web.py` 从 `dist/` 生成，带 16 张卡通形象，浏览器里额外开放「复制结果文案 / 下载结果卡」。改内容请改 `dist/` 再重新生成，不要直接编辑这个目录 |
 | `images/` | logo 与小猫表情素材 |
 
 两个测试共用 `images/logo.jpg`。
