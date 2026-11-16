@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>你是魔法学院的谁 · 魔法测格</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+
+<main id="app">
+
+  <section class="screen on" id="s-intro">
+    <div class="brand">
+      <img src="./images/logo.webp" alt="魔法测格标识">
+      <span class="bt">魔 法 测 格</span>
+    </div>
+    <h1>你是魔法学院的谁</h1>
+    <p class="sub">四 维 测 格 · 16 人 物 · 分院结果</p>
+
+    <div class="card-magic">
+      <p class="lede">分院帽只看学院。<br>这个测格看<b>你是故事里的谁</b>。</p>
+      <ul class="steps">
+        <li>四条轴：<b>面对世界</b>、<b>做决定</b>、<b>人群里</b>、<b>表达</b>。</li>
+        <li>每条轴 4 题，组合正好 <b>16 个角色</b>，各配一张卡通形象。</li>
+        <li>每题选项都带<b>学院倾向</b>，最后算出你的分院结果。</li>
+        <li>某条轴 4 题全选同一边 → <b>纯度拉满</b>，约十六分之一。</li>
+      </ul>
+      <div id="lastResult" class="last-result" hidden></div>
+      <button class="btn" data-act="start">进入 大厅</button>
+      <button class="btn ghost" data-act="roster">先看 16 人名单</button>
+      <p class="disc">娱乐向测格 · 角色匹配基于性格轴 · 与原著设定不完全一致</p>
+    </div>
+  </section>
+
+  <section class="screen" id="s-quiz">
+    <div class="qhead">
+      <div class="qnum" id="qProg"></div>
+      <div class="pips" id="qPips"></div>
+    </div>
+    <div class="runebar" id="runebar"></div>
+    <div class="qtext" id="qText"></div>
+    <div id="qOpts"></div>
+    <div class="qhint" id="qHint"></div>
+  </section>
+
+  <section class="screen" id="s-select">
+    <div class="hat">🎩</div>
+    <p>分院帽正在思考...</p>
+  </section>
+
+  <section class="screen" id="s-res"></section>
+
+  <section class="screen" id="s-roster"></section>
+
+</main>
+
+<div class="spell-overlay" id="spell" hidden>
+  <div class="spell-inner">
+    <div class="spell-sparks" id="spellSparks"></div>
+    <div class="spell-cat"><img src="./images/logo.webp" alt=""></div>
+    <div class="spell-word" id="spellWord"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="./app.js"></script>
+</body>
+</html>
