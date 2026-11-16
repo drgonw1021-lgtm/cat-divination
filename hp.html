@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>你是霍格沃茨的谁 · 魔法测格</title>
+<style>
+:root{
+  --night:#141024;
+  --night2:#1e1833;
+  --gold:#d4af37;
+  --gold-soft:#e8c96a;
+  --parch:#f3e9d2;
+  --parch2:#e5d5b0;
+  --ink:#3a2f1f;
+  --ink-soft:#6b5d45;
+  --rose:#e8a5b5;
+  --shadow:rgba(0,0,0,.5);
+  --gry:#ae0001; --sly:#2d4c3a; --rav:#222f50; --huf:#ecb939;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;
+  background:radial-gradient(ellipse at 50% -20%,#2a2145 0%,var(--night) 55%,#0b0817 100%);
+  color:var(--parch);
+  line-height:1.8;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.star{position:absolute;background:#fff;border-radius:50%;opacity:.5;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:.9}}
+#app{position:relative;z-index:1;max-width:440px;margin:0 auto;padding:22px 20px 44px}
+.screen{display:none;animation:fadeUp .5s ease both}
+.screen.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* header */
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px}
+.brand img{width:44px;height:44px;object-fit:contain;border-radius:50%}
+.brand .bt{font-size:14px;letter-spacing:4px;color:var(--gold)}
+h1{font-size:24px;text-align:center;letter-spacing:6px;color:var(--gold-soft);font-weight:600;margin:8px 0}
+.sub{text-align:center;font-size:12px;letter-spacing:4px;color:#8a7fb0;margin-bottom:22px}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;margin:22px 0}
+
+/* cards */
+.card-magic{background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.25);border-radius:14px;padding:20px;margin-bottom:14px;backdrop-filter:blur(4px)}
+.lede{font-size:14.5px;color:#cfc4e8;text-align:center;line-height:2}
+.lede b{color:var(--gold-soft)}
+.steps{list-style:none;margin-top:14px}
+.steps li{position:relative;padding:10px 14px 10px 42px;margin-bottom:8px;background:rgba(212,175,55,.06);border-radius:10px;font-size:13.5px;color:#c9bede;line-height:1.7}
+.steps li::before{content:"✦";position:absolute;left:16px;top:9px;color:var(--gold);font-size:14px}
+.steps li b{color:var(--gold-soft)}
+.btn{display:block;width:100%;margin-top:16px;padding:15px;background:linear-gradient(135deg,var(--gold),#a8842a);color:#1a1305;border:none;border-radius:30px;font-family:inherit;font-size:16px;font-weight:600;letter-spacing:6px;cursor:pointer;box-shadow:0 6px 24px rgba(212,175,55,.3);transition:all .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(212,175,55,.4)}
+.btn.ghost{background:transparent;border:1px solid rgba(212,175,55,.4);color:var(--gold-soft);letter-spacing:3px;font-size:14px;padding:12px;box-shadow:none}
+.btn.ghost:hover{background:rgba(212,175,55,.08)}
+.disc{margin-top:16px;font-size:11px;color:#6a5f8a;text-align:center;line-height:1.7}
+
+/* quiz */
+.qhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:11px 15px;background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.18);border-radius:10px}
+.qnum{font-size:12px;color:#a99cc9;letter-spacing:1px}
+.pips{display:flex;gap:4px}
+.pip{width:22px;height:3px;background:rgba(255,255,255,.15);border-radius:2px}
+.pip.done{background:var(--gold)}
+.pip.cur{background:var(--rose);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.runebar{display:flex;justify-content:center;gap:16px;padding:14px 0;font-size:13px;color:#7f74a6}
+.rune{display:flex;flex-direction:column;align-items:center;gap:4px;transition:.4s}
+.rune .sym{font-size:22px;color:#4d4470;transition:.4s}
+.rune.lit .sym{color:var(--gold);text-shadow:0 0 14px rgba(212,175,55,.7)}
+.rune .lab{font-size:10px;letter-spacing:1px}
+.qtext{font-size:17px;line-height:1.8;margin:16px 0;color:var(--parch);min-height:60px}
+.opt{display:block;width:100%;text-align:left;margin-bottom:11px;padding:14px 15px;background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.2);color:var(--parch);font-family:inherit;font-size:14.5px;line-height:1.65;border-radius:10px;cursor:pointer;transition:all .18s}
+.opt:hover{background:rgba(212,175,55,.1);border-color:var(--gold);transform:translateX(3px)}
+.opt.sel{background:rgba(212,175,55,.22);border-color:var(--gold);color:#fff}
+.qhint{font-size:11px;color:#6a5f8a;text-align:center;letter-spacing:2px;margin-top:6px}
+
+/* spell overlay */
+.spell-overlay{position:fixed;inset:0;background:rgba(20,16,36,.88);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.spell-inner{text-align:center}
+.spell-cat{font-size:90px;display:inline-block;animation:spellShake .9s cubic-bezier(.3,1.4,.5,1)}
+@keyframes spellShake{0%{transform:translateY(-60px) rotate(-30deg);opacity:0}45%{transform:translateY(10px) rotate(15deg);opacity:1}70%{transform:translateY(-8px) rotate(-8deg)}100%{transform:translateY(0) rotate(0);opacity:1}}
+.spell-word{margin-top:14px;font-size:20px;letter-spacing:6px;color:var(--gold-soft);animation:wordGlow 1.1s ease;font-style:italic}
+@keyframes wordGlow{0%{opacity:0;letter-spacing:14px}60%{opacity:1}100%{opacity:1;letter-spacing:6px}}
+.spell-spark{position:absolute;font-size:22px;animation:sparkFly 1s ease-out forwards}
+@keyframes sparkFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
+
+/* selecting */
+#select{text-align:center;padding-top:70px}
+.hat{font-size:110px;display:inline-block;animation:hatSpin 1.8s ease-in-out}
+@keyframes hatSpin{0%{transform:rotate(0) scale(.5);opacity:0}30%{opacity:1}100%{transform:rotate(720deg) scale(1);opacity:1}}
+#select p{margin-top:22px;letter-spacing:6px;color:#a99cc9;font-size:14px}
+
+/* result parchment */
+.parch-card{background:linear-gradient(160deg,var(--parch) 0%,var(--parch2) 100%);color:var(--ink);border-radius:6px;padding:26px 22px;position:relative;box-shadow:0 20px 60px -18px rgba(0,0,0,.85)}
+.parch-card::before{content:"";position:absolute;inset:8px;border:1px solid rgba(58,47,31,.2);border-radius:3px;pointer-events:none}
+.parch-card .seal{position:absolute;right:16px;top:16px;width:46px;height:46px;border:2px solid var(--gry);color:var(--gry);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1.1;text-align:center;transform:rotate(8deg);opacity:.85;padding:2px}
+.char-face{font-size:64px;text-align:center;margin:6px 0}
+.char-name{font-size:30px;text-align:center;font-weight:700;letter-spacing:3px;color:var(--ink)}
+.char-en{text-align:center;font-size:12px;letter-spacing:3px;color:var(--ink-soft);text-transform:uppercase;margin-top:2px}
+.char-tag{text-align:center;font-size:14px;color:#4a3d28;margin-top:12px;font-weight:600}
+.char-verdict{margin-top:14px;padding:14px;background:rgba(58,47,31,.06);border-radius:8px;font-size:14px;line-height:1.9;color:#3a2f1f}
+.house-row{display:flex;align-items:center;gap:10px;margin-top:14px;padding:11px 13px;background:rgba(58,47,31,.05);border-radius:8px}
+.house-dot{width:16px;height:16px;border-radius:50%;flex:none}
+.house-row .ht{font-size:13px;color:#3a2f1f}
+.house-row .hs{font-size:11px;color:var(--ink-soft);margin-left:auto}
+.kv{margin-top:18px}
+.kv .row{display:flex;gap:12px;padding:9px 0;border-bottom:1px dashed rgba(58,47,31,.15);font-size:13.5px}
+.kv .k{color:var(--ink-soft);flex:none;width:70px;letter-spacing:1px}
+.kv .v{color:#3a2f1f}
+.block{margin-top:24px}
+.bt-h{font-size:13px;letter-spacing:5px;color:var(--gold);margin-bottom:11px;display:flex;align-items:center;gap:10px}
+.bt-h::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(212,175,55,.4),transparent)}
+.panel{background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.18);border-radius:12px;padding:15px 16px;font-size:13.5px;color:#cfc4e8;line-height:1.85}
+.panel b{color:var(--gold-soft)}
+.badge{display:inline-block;font-size:11px;letter-spacing:1px;padding:3px 9px;border-radius:12px;margin-right:6px;font-weight:600}
+.badge.gold{background:var(--gold);color:#1a1305}
+.badge.rose{background:var(--rose);color:#3a1c24}
+.badge.dim{background:rgba(255,255,255,.12);color:#cfc4e8}
+.small{font-size:11.5px;color:#8a7fb0;line-height:1.7}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.chip{padding:7px 11px;border:1px solid rgba(212,175,55,.25);border-radius:18px;font-size:12px;color:#cfc4e8;cursor:pointer;background:transparent;font-family:inherit;transition:all .18s}
+.chip:hover,.chip.on{border-color:var(--gold);color:#fff;background:rgba(212,175,55,.15)}
+.meter{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin:10px 0}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));width:0;transition:width 1s ease}
+.grid16{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}
+.gcell{border:1px solid rgba(212,175,55,.2);border-radius:9px;padding:9px 3px;text-align:center;cursor:pointer;transition:.18s;background:rgba(255,255,255,.03)}
+.gcell:hover{border-color:var(--gold);transform:translateY(-2px)}
+.gcell .s{font-size:20px;line-height:1.2}
+.gcell .n{font-size:10.5px;color:#a99cc9;margin-top:2px}
+.gcell.me{border-color:var(--rose);background:rgba(232,165,181,.15)}
+.house-bars{margin-top:8px}
+.hbar{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:12px;color:#cfc4e8}
+.hbar .nm{width:56px;flex:none}
+.hbar .tr{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.hbar .tr i{display:block;height:100%;width:0;border-radius:4px;transition:width 1s ease}
+.hbar .pc{width:34px;text-align:right;font-size:11px;color:#8a7fb0}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="app">
+
+<!-- INTRO -->
+<section class="screen on" id="s-intro">
+  <div class="brand"><img src="images/logo.jpg" alt=""><span class="bt">小猫起卦 · 新篇</span></div>
+  <h1>你是霍格沃茨的谁</h1>
+  <div class="sub">四 维 魔 法 测 格 · 16 人 物</div>
+  <div class="hr"></div>
+  <div class="card-magic">
+    <p class="lede">分院帽只看学院。<br>这个测试看<b>你是故事里的谁</b>。</p>
+    <ul class="steps">
+      <li>四条魔法轴：<b>面对世界</b>、<b>做决定</b>、<b>人群里</b>、<b>表达</b>。</li>
+      <li>每条轴 4 道题，组合起来正好 <b>16 个角色</b> —— 从哈利到多比都有。</li>
+      <li>每题选项还带着<b>学院倾向</b>，最后算出你的分院结果。</li>
+      <li>某条轴 4 题全选同一边 → <b>纯度拉满</b>，约十六分之一的人会遇到。</li>
+    </ul>
+    <button class="btn" onclick="startQuiz()">进入 大厅</button>
+    <button class="btn ghost" onclick="openRoster()">先看 16 人名单</button>
+    <button class="btn ghost" onclick="location.href='index.html'">← 小猫起卦</button>
+    <p class="disc">娱乐向测试 · 与原著设定不完全一致 · 角色匹配基于性格轴</p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="screen" id="s-quiz">
+  <div class="qhead">
+    <div class="qnum" id="qProg"></div>
+    <div class="pips" id="qPips"></div>
+  </div>
+  <div class="runebar" id="runebar"></div>
+  <div class="qtext" id="qText"></div>
+  <div id="qOpts"></div>
+  <div class="qhint" id="qHint"></div>
+</section>
+
+<!-- SELECTING -->
+<section class="screen" id="select">
+  <div class="hat">🎩</div>
+  <p>分院帽正在思考...</p>
+</section>
+
+<!-- RESULT -->
+<section class="screen" id="s-res"></section>
+
+<!-- ROSTER -->
+<section class="screen" id="s-roster"></section>
+
+</div>
+
+<script>
+/* ============ 四维轴 ============ */
+const AXES = [
+  { key:'a1', sym:'⚡', name:'面对世界', a:'闯', b:'守', desc:'先冲上去，还是先看清' },
+  { key:'a2', sym:'❤', name:'做决定',   a:'心', b:'脑', desc:'凭直觉和感情，还是凭分析和道理' },
+  { key:'a3', sym:'👥', name:'人群里',   a:'群', b:'单', desc:'越热闹越有电，还是人多了耗电' },
+  { key:'a4', sym:'✨', name:'表达',     a:'闹', b:'稳', desc:'气氛担当，还是定海神针' }
+];
+
+/* ============ 题库 4轴 × 4题 ============ */
+const BANK = [
+  /* --- 轴1 · 闯/守 --- */
+  { s:'雨夜发现一条被禁止进入的走廊', o:[
+    {t:'先进去看看，被抓了再说', v:'闯', h:'gry'},
+    {t:'先搞清楚为什么被禁止', v:'守', h:'rav'} ]},
+  { s:'朋友被高年级欺负', o:[
+    {t:'当场站出来怼回去', v:'闯', h:'gry'},
+    {t:'记下时间地点，找教授', v:'守', h:'sly'} ]},
+  { s:'分院帽把你分错了学院', o:[
+    {t:'无所谓，在哪里都能活好', v:'守', h:'huf'},
+    {t:'当场跟帽子辩论三百回合', v:'闯', h:'rav'} ]},
+  { s:'魔药课考试，斯内普在监考', o:[
+    {t:'提前三周开始准备', v:'守', h:'rav'},
+    {t:'先赌他会提问我，专攻问答', v:'闯', h:'sly'} ]},
+
+  /* --- 轴2 · 心/脑 --- */
+  { s:'朋友被费尔奇抓住，正在求救', o:[
+    {t:'先想想出去会不会连累自己', v:'脑', h:'sly'},
+    {t:'脑子还没想完，腿已经过去了', v:'心', h:'gry'} ]},
+  { s:'有人送你一瓶没有标签的魔药', o:[
+    {t:'先查配方和来源再说', v:'脑', h:'rav'},
+    {t:'直觉告诉我可以，就喝', v:'心', h:'huf'} ]},
+  { s:'要在一群陌生人里选队友', o:[
+    {t:'选看起来最靠谱、能力最强的', v:'脑', h:'sly'},
+    {t:'选第一个对我笑的人', v:'心', h:'huf'} ]},
+  { s:'活点地图显示你讨厌的人在往这走', o:[
+    {t:'先想清楚他找我干嘛', v:'脑', h:'rav'},
+    {t:'先把旁边打瞌睡的人拖走', v:'心', h:'huf'} ]},
+  /* --- 轴3 · 群/单 --- */
+  { s:'公共休息室的壁炉边坐满了人', o:[
+    {t:'挤进去，热闹才是格兰芬多', v:'群', h:'gry'},
+    {t:'回寝室，图书馆角落也一样', v:'单', h:'rav'} ]},
+  { s:'魁地奇决赛，你通常在', o:[
+    {t:'球场人群里，喊到嗓子哑', v:'群', h:'huf'},
+    {t:'看台最高处，一个人看全局', v:'单', h:'sly'} ]},
+  { s:'圣诞派对的安排', o:[
+    {t:'组一个十人以上的大桌', v:'群', h:'gry'},
+    {t:'和两三个人待着最舒服', v:'单', h:'huf'} ]},
+  { s:'在礼堂吃饭', o:[
+    {t:'坐长桌中间，谁都能搭话', v:'群', h:'huf'},
+    {t:'坐桌子末端，观察全场', v:'单', h:'sly'} ]},
+
+  /* --- 轴4 · 闹/稳 --- */
+  { s:'你想对费尔奇的办公室做什么', o:[
+    {t:'放一把会唱歌的烟火', v:'闹', h:'gry'},
+    {t:'不动，让他自己出丑', v:'稳', h:'sly'} ]},
+  { s:'被教授当众表扬', o:[
+    {t:'替全班多要一次加分', v:'闹', h:'huf'},
+    {t:'微微点头，回去继续做', v:'稳', h:'rav'} ]},
+  { s:'拿到了活点地图', o:[
+    {t:'立刻去整人，机会不等人', v:'闹', h:'gry'},
+    {t:'先研究三个月规律再用', v:'稳', h:'rav'} ]},
+  { s:'韦斯莱双子的笑话店', o:[
+    {t:'我是他们的供应商', v:'闹', h:'gry'},
+    {t:'我是他们的投资人', v:'稳', h:'sly'} ]}
+];
+
+/* ============ 学院 ============ */
+const HOUSES = {
+  gry:{name:'格兰芬多', color:'#ae0001', emoji:'🦁', line:'勇气与莽撞只隔一步，你选的那一步通常很快。'},
+  sly:{name:'斯莱特林', color:'#2d4c3a', emoji:'🐍', line:'你清楚自己要什么，也愿意等一个最好的时机。'},
+  rav:{name:'拉文克劳', color:'#222f50', emoji:'🦅', line:'先把世界想明白，再决定要不要参与。'},
+  huf:{name:'赫奇帕奇', color:'#ecb939', emoji:'🦡', line:'不抢镜头，但所有人在关键时刻都会回头找你。'}
+};
+const HOUSE_ORDER = ['gry','sly','rav','huf'];
+
+/* ============ 16 角色：key = [a1,a2,a3,a4] 1=闯/心/群/闹 ============ */
+const CHARS = {
+  '1111':{ n:'韦斯莱双子', en:'Fred & George', face:'🎭', tag:'全校的天花板，校规的地板',
+    verdict:'四条轴全开。你负责让所有人笑，顺便把规矩拆了重建。',
+    eyes:'有你在的地方就不会冷场', shade:'没人问过你不开玩笑的时候在干嘛',
+    patronus:'狗 · 你逗乐所有人，但真正难过时只有彼此能懂', wand:'樱桃木 · 魔杖喜欢恶作剧，和主人一模一样', canon:'纯恶作剧浓度 6.25%' },
+  '1110':{ n:'哈利·波特', en:'Harry Potter', face:'⚡', tag:'不是勇敢，是放不下别人',
+    verdict:'冲得快、凭真心、需要伙伴、但关键时刻比谁都稳。你就是那个被命运推着走的人。',
+    eyes:'好像很幸运，其实只是不肯退', shade:'你把"扛下来"当成默认设置，连求助都觉得是麻烦别人',
+    patronus:'牡鹿 · 你守护的东西比你想的更具体', wand:'冬青木 · 注定要回击的那根', canon:'主角浓度 6.25%' },
+  '1101':{ n:'卢娜·洛夫古德', en:'Luna Lovegood', face:'🌙', tag:'别人说她怪，她说你看不见而已',
+    verdict:'敢闯、凭直觉、一个人也自在、还毫不掩饰地有趣。你是少数活得完全不怕尴尬的人。',
+    eyes:'有点飘，但莫名安心', shade:'你用"不在乎"保护自己太熟练，熟练到别人忘了你也会受伤',
+    patronus:'水兔 · 活在自己世界的人，反而最不容易被恐惧打倒', wand:'核桃木 · 有时专心得惊人，包括对别人', canon:'通透浓度 6.25%' },
+  '1100':{ n:'纳威·隆巴顿', en:'Neville Longbottom', face:'🌱', tag:'最胆小的人，最后拔剑',
+    verdict:'敢冲、凭真心、独处、稳。你不是天生勇敢，你是慢慢长出来的 —— 这种勇气更贵。',
+    eyes:'慢半拍，但很可靠', shade:'你总等别人先肯定你，其实你早就够了',
+    patronus:'没有固定形态 · 有些人的守护神要等他自己长大', wand:'樱桃木 · 适合草药学，也适合开窍晚的人', canon:'大器晚成浓度 6.25%' },
+  '1011':{ n:'赫敏·格兰杰', en:'Hermione Granger', face:'📚', tag:'恐惧的解药是准备到十分',
+    verdict:'敢闯、爱热闹、闲不住，但每一步都靠脑子。你是那种"我查过了，听我的"的人。',
+    eyes:'聪明到有点吓人', shade:'你不允许自己不会，不会就焦虑',
+    patronus:'水獭 · 聪明又爱玩，只是你不太允许自己玩', wand:'葡萄藤木 · 天生赢家，而且真的会赢', canon:'学霸浓度 6.25%' },
+  '1010':{ n:'麦格教授', en:'Minerva McGonagall', face:'🐈', tag:'最硬的规矩，包着最软的心',
+    verdict:'敢闯、讲道理、合群、稳。你是那种会为别人破例，但绝不承认破例的人。',
+    eyes:'有点怕她，但出事第一个找她', shade:'你把责任当成身份，一放下就觉得自己没用了',
+    patronus:'猫 · 你可以变成任何人，但没人变出你的休息日', wand:'紫杉木 · 能攻能守，全靠自己撑', canon:'靠谱浓度 6.25%' },
+  '1001':{ n:'秋·张', en:'Cho Chang', face:'🕊', tag:'哭过，也真的重新站起来过',
+    verdict:'敢闯、讲道理、喜欢热闹、表达直接。你不是脆弱，你只是不肯假装没事。',
+    eyes:'很受欢迎，也很被误解', shade:'别人记住你哭的那次，没记住你站起来的那次',
+    patronus:'天鹅 · 受过伤还愿意重新开始的类型', wand:'柳木 · 有时需要一根能带来好运的魔杖', canon:'韧性浓度 6.25%' },
+  '1000':{ n:'罗恩·韦斯莱', en:'Ron Weasley', face:'♟', tag:'永远在主角旁边，永远是真的',
+    verdict:'敢闯、讲道理、爱热闹、但稳。你是那个嘴上抱怨、身体却很诚实地跟上去的人。',
+    eyes:'好笑、可靠、有点容易被忽略', shade:'你习惯把自己排后面，久了别人以为你不需要被排前面',
+    patronus:'杰克罗素梗 · 忠诚、有点闹、永远跟着那头牡鹿', wand:'白蜡木 · 和主人一样，忠诚到一根筋', canon:'兄弟浓度 6.25%' },
+  '0111':{ n:'金妮·韦斯莱', en:'Ginny Weasley', face:'🧹', tag:'最会开玩笑的人，下手也最准',
+    verdict:'先看清、凭真心、爱热闹、气氛担当。你是那种笑着把蝙蝠咒塞进对方书包的人。',
+    eyes:'好相处，但别惹', shade:'你把"我能扛"演得太自然，结果所有人都信了',
+    patronus:'马 · 你需要的不是缰绳，是开阔地', wand:'紫杉木 · 攻击与防御兼具，一般主人也这样', canon:'反差浓度 6.25%' },
+  '0110':{ n:'塞德里克·迪戈里', en:'Cedric Diggory', face:'🏆', tag:'强，而且真的公平',
+    verdict:'先看清、凭真心、合群、稳。你是那种赢了比赛还会要求重赛的人。',
+    eyes:'几乎挑不出毛病', shade:'你太在意"做得对不对"，常常轮到自己就犹豫',
+    patronus:'没有记录 · 有些人的好，来不及被写下来', wand:'白蜡木 · 只选一个主人，选了就是一辈子', canon:'体面浓度 6.25%' },
+  '0101':{ n:'海格', en:'Rubeus Hagrid', face:'🐗', tag:'被说废物的人，活成了最暖的人',
+    verdict:'先看清、凭真心、独处、但外放。你只对"自己人"敞开，而且敞开得毫无保留。',
+    eyes:'看着吓人，其实最好骗', shade:'你保护所有人，唯独不让自己需要被保护',
+    patronus:'野猪 · 你护着的东西比你大十倍', wand:'橡木 · 适合农林和占卜，也适合守护', canon:'温柔浓度 6.25%' },
+  '0100':{ n:'多比', en:'Dobby', face:'🧦', tag:'自由不是别人给的，是自己挣的',
+    verdict:'先看清、凭真心、一个人、稳。你话不多，但答应过的事会做到，哪怕代价很大。',
+    eyes:'有点怯，但异常坚定', shade:'你习惯先确认自己"配不配"，很多事就错过了',
+    patronus:'没有 · 但一只袜子，比任何守护神都难得到', wand:'无 · 自由不是配给你的，是你自己拿的', canon:'自由浓度 6.25%' },
+  '0011':{ n:'卢修斯·马尔福', en:'Lucius Malfoy', face:'🪶', tag:'一生都在选赢家',
+    verdict:'先看清、讲道理、合群、外放。你最擅长的是场面 —— 场面里全是算计。',
+    eyes:'优雅，但让人不敢靠近', shade:'你最该站队的那一次，你跑了。体面是信仰，也是牢笼',
+    patronus:'雪貂 · 据说连守护神都怕主人', wand:'榆木 · 适合追求更高目标的人，你一直在追', canon:'体面浓度 6.25%' },
+  '0010':{ n:'邓布利多', en:'Albus Dumbledore', face:'🔥', tag:'聪明人犯的错，代价最大',
+    verdict:'先看清、讲道理、合群、稳。你是那种所有人都来找你，但你谁都不告诉的人。',
+    eyes:'看不透，但莫名可信', shade:'你习惯当所有人的答案，包括别人的，唯独不是自己的',
+    patronus:'凤凰 · 只有一个人能让它出现，他死后它就没了', wand:'接骨木 · 拿到它的人，都要先回答一个问题', canon:'秘密浓度 6.25%' },
+  '0001':{ n:'泰迪·卢平', en:'Teddy Lupin', face:'🎨', tag:'出身不是判决书',
+    verdict:'先看清、讲道理、独处、外放。你变来变去，但每一面都是自己选的。',
+    eyes:'有点难捉摸，但很有想法', shade:'你太习惯"适应别人"，很少让人看到默认状态',
+    patronus:'会变形的 · 混血狼人，形态由心情决定', wand:'没有固定 · 有些人的配置天生就不止一套', canon:'重生浓度 6.25%' },
+  '0000':{ n:'西弗勒斯·斯内普', en:'Severus Snape', face:'🦌', tag:'演了一辈子反派，只有一个观众',
+    verdict:'先看清、讲道理、独处、稳。你把所有情绪都锁在"专业"后面，锁得太好了。',
+    eyes:'严厉，偏心，看不透', shade:'你用一句"Always"憋了一辈子 —— 有些真相不说出来，就只是惩罚自己',
+    patronus:'母鹿 · 因为一个人，而且一辈子没变过', wand:'没有记录 · 有些人的故事不靠魔杖讲', canon:'隐忍浓度 6.25%' }
+};
+
+/* 角色在原著里的学院（用于对比分院结果）*/
+const CANON_HOUSE = {
+  '1111':'gry','1110':'gry','1101':'rav','1100':'gry',
+  '1011':'gry','1010':'gry','1001':'rav','1000':'gry',
+  '0111':'gry','0110':'huf','0101':'gry','0100':'',
+  '0011':'sly','0010':'gry','0001':'huf','0000':'sly'
+};
+
+/* 咒语池 */
+const SPELLS = ['除你武器','荧光闪烁','呼神护卫','恢复如初','咧嘴呼啦啦','阿拉霍洞开','速速前来','皮皮鬼走开'];
+
+/* ============ 引擎 ============ */
+let qi=0, votes=[0,0,0,0], lines=[null,null,null,null], houseTally={gry:0,sly:0,rav:0,huf:0};
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0)}
+
+function startQuiz(){
+  qi=0;votes=[0,0,0,0];lines=[null,null,null,null];houseTally={gry:0,sly:0,rav:0,huf:0};
+  show('s-quiz');renderRunes();renderQ();
+}
+function renderRunes(){
+  document.getElementById('runebar').innerHTML = AXES.map((a,i)=>
+    `<div class="rune ${lines[i]!==null?'lit':''}"><span class="sym">${a.sym}</span><span class="lab">${a.name}</span></div>`
+  ).join('');
+}
+function renderPips(){
+  const ax=Math.floor(qi/4);
+  document.getElementById('qPips').innerHTML = AXES.map((a,i)=>
+    `<div class="pip ${i<ax?'done':(i===ax?'cur':'')}"></div>`).join('');
+}
+function renderQ(){
+  if(qi>=16){ doSelecting(); return; }
+  const q=BANK[qi], ax=AXES[Math.floor(qi/4)];
+  document.getElementById('qProg').textContent=`第 ${qi+1} / 16 题 · ${ax.name}`;
+  document.getElementById('qText').textContent=q.s;
+  const pair=shuffle([...q.o]);
+  document.getElementById('qOpts').innerHTML=pair.map((o,i)=>
+    `<button class="opt" onclick="pick(${i},'${o.v}','${o.h}')">${o.t}</button>`).join('');
+  document.getElementById('qHint').textContent=ax.desc;
+  renderPips();renderRunes();
+}
+function pick(i,v,h){
+  document.querySelectorAll('.opt').forEach((b,bi)=>b.classList.toggle('sel',bi===i));
+  const ax=Math.floor(qi/4);
+  if(v===AXES[ax].a) votes[ax]++;
+  houseTally[h]++;
+  castSpell();
+  setTimeout(()=>{
+    qi++;
+    if(qi%4===0){
+      const cnt=votes[ax];
+      lines[ax]={ a:cnt>=3, pure:(cnt===4||cnt===0) };
+      renderRunes();
+    }
+    renderQ();
+  },1150);
+}
+function castSpell(){
+  const ov=document.createElement('div');
+  ov.className='spell-overlay';
+  const word=SPELLS[Math.floor(Math.random()*SPELLS.length)];
+  let sparks='';
+  for(let i=0;i<6;i++){
+    const dx=(Math.random()*160-80).toFixed(0), dy=(Math.random()*-120-20).toFixed(0);
+    sparks+=`<span class="spell-spark" style="--dx:${dx}px;--dy:${dy}px;left:${45+Math.random()*10}%;top:${40+Math.random()*10}%">✨</span>`;
+  }
+  ov.innerHTML=`<div class="spell-inner">${sparks}<div class="spell-cat"><img src="images/logo.jpg" style="width:120px;height:120px;object-fit:contain"></div><div class="spell-word">${word}!</div></div>`;
+  document.body.appendChild(ov);
+  setTimeout(()=>ov.remove(),1050);
+}
+function doSelecting(){ show('select'); setTimeout(()=>{renderResult();show('s-res')},2000); }
+
+function compute(){
+  const code=lines.map(l=>l.a?'1':'0').join('');
+  const ch=CHARS[code];
+  const total=Object.values(houseTally).reduce((a,b)=>a+b,0);
+  let best=HOUSE_ORDER[0];
+  HOUSE_ORDER.forEach(h=>{ if(houseTally[h]>houseTally[best]) best=h; });
+  const pureCount=lines.filter(l=>l.pure).length;
+  return {code,ch,house:best,total,pureCount};
+}
+function renderResult(){
+  const r=compute(); const C=r.ch; const H=HOUSES[r.house];
+  const canonHouse = CANON_HOUSE[r.code]||'';
+  const matchHouse = canonHouse && canonHouse===r.house;
+  const pureBadge = r.pureCount>=2 ? `<span class="badge gold">纯度 ${r.pureCount}/4</span>约十六分之一`
+    : r.pureCount===1 ? `<span class="badge rose">单轴拉满</span>约 6.25%`
+    : `<span class="badge dim">均衡型</span>`;
+
+  document.getElementById('s-res').innerHTML=`
+    <div class="parch-card">
+      <div class="seal">${H.emoji}<br>分院</div>
+      <div class="char-face">${C.face}</div>
+      <div class="char-name">${C.n}</div>
+      <div class="char-en">${C.en}</div>
+      <div class="char-tag">「 ${C.tag} 」</div>
+      <div class="char-verdict">${C.verdict}</div>
+      <div class="house-row">
+        <span class="house-dot" style="background:${H.color}"></span>
+        <span class="ht"><b>${H.name}</b> ${H.emoji}</span>
+        <span class="hs">${matchHouse?'和原著学院一致！':'你的选择比帽子更准'}</span>
+      </div>
+    </div>
+
+    <div class="kv">
+      <div class="row"><div class="k">分院词</div><div class="v">${H.line}</div></div>
+      <div class="row"><div class="k">守护神</div><div class="v">${C.patronus}</div></div>
+      <div class="row"><div class="k">魔杖</div><div class="v">${C.wand}</div></div>
+      <div class="row"><div class="k">别人眼中</div><div class="v">${C.eyes}</div></div>
+      <div class="row"><div class="k">阴影面</div><div class="v">${C.shade}</div></div>
+      <div class="row"><div class="k">你的纯度</div><div class="v">${C.canon}</div></div>
+    </div>
+
+    <div class="block">
+      <div class="bt-h">四 维 能 量</div>
+      <div class="panel">
+        ${AXES.map((a,i)=>{
+          const cnt=votes[i]; const left=cnt; const right=4-cnt;
+          return `<div class="hbar"><span class="nm">${a.sym} ${a.a}</span>
+            <span class="tr"><i style="background:linear-gradient(90deg,var(--gold),var(--rose))" data-w="${left/4*100}"></i></span>
+            <span class="pc">${left}:${right}</span>
+            <span class="nm" style="width:auto;text-align:right">${a.b}</span></div>`
+        }).join('')}
+        <div style="margin-top:10px">${pureBadge}</div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="bt-h">分 院 细 节</div>
+      <div class="panel">
+        <div class="house-bars">
+        ${HOUSE_ORDER.map(h=>{const x=HOUSES[h];const p=Math.round(houseTally[h]/r.total*100);
+          return `<div class="hbar"><span class="nm">${x.emoji} ${x.name.slice(0,3)}</span>
+            <span class="tr"><i style="background:${x.color}" data-w="${p}"></i></span>
+            <span class="pc">${p}%</span></div>`}).join('')}
+        </div>
+        <div class="small" style="margin-top:8px">分院帽按你 16 次选择的学院倾向加权。${matchHouse?'这次它猜对了你的原著学院。':'它把你分到了和原著不同的学院 —— 说明你现在的活法，和角色设定不太一样。'}</div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="bt-h">和 谁 最 合 拍</div>
+      <div class="panel" style="padding-bottom:12px">
+        <div class="small">选一个好友的角色，看你们在故事里能不能活到最后一部。</div>
+        <div class="chips" id="pairChips"></div>
+        <div id="pairOut"></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="bt-h">16 人 名 单</div>
+      <div class="grid16">${Object.entries(CHARS).map(([c,x])=>
+        `<div class="gcell ${c===r.code?'me':''}" onclick="peek('${c}')"><div class="s">${x.face}</div><div class="n">${x.n.split('·')[0]}</div></div>`).join('')}</div>
+      <div id="peekOut"></div>
+    </div>
+
+    <button class="btn" onclick="copyCard()">复制结果卡</button>
+    <button class="btn ghost" onclick="show('s-intro')">再 测 一 次</button>
+    <button class="btn ghost" onclick="location.href='index.html'">← 小猫起卦</button>
+    <p class="disc">娱乐向测试。角色匹配基于四条性格轴的 16 种组合，与原著设定不完全一致。</p>
+  `;
+  requestAnimationFrame(()=>{document.querySelectorAll('#s-res .meter i,#s-res .hbar i').forEach(i=>{i.style.width=(i.dataset.w||0)+'%'});});
+  buildPair(r);
+}
+
+/* 配对：按轴相似度 */
+function pairText(myCode,otherCode){
+  const A=CHARS[myCode],B=CHARS[otherCode];
+  let same=0; for(let i=0;i<4;i++) if(myCode[i]===otherCode[i]) same++;
+  const diff=4-same;
+  if(same===4) return {t:'同一个人',s:95,d:'完全同轴。你们要么成为最好的搭档，要么成为最烦对方的镜子 —— 因为你们最看不惯对方的地方，自己身上也有。'};
+  if(diff===1) return {t:'高契合',s:88,d:`只差一条轴。${A.n} 和 ${B.n} 在故事里通常是并肩出现的那种 —— 一个冲动的时候另一个刚好踩得住。`};
+  if(diff===2) return {t:'互补型',s:74,d:`两条轴相反。你们的用法是"分工"：${A.tag} × ${B.tag}。硬要干同一件事就会吵架。`};
+  if(diff===3) return {t:'需要翻译',s:55,d:'三条轴不同。你们做同一个决定的路径完全相反 —— 能玩到一起靠的不是相似，是好奇。'};
+  return {t:'镜像对',s:42,d:'四条轴全反。你们几乎是同一个人的两个版本。故事里这种组合通常一个活到结尾，另一个死在第七部。'};
+}
+function buildPair(r){
+  document.getElementById('pairChips').innerHTML=Object.entries(CHARS).map(([c,x])=>
+    `<button class="chip" onclick="doPair('${c}','${r.code}',this)">${x.face} ${x.n.split('·')[0]}</button>`).join('');
+}
+function doPair(otherCode,myCode,btn){
+  document.querySelectorAll('#pairChips .chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  const rel=pairText(myCode,otherCode);
+  document.getElementById('pairOut').innerHTML=`
+    <div style="margin-top:12px;padding-top:12px;border-top:1px dashed rgba(212,175,55,.25)">
+      <div style="font-size:14.5px;color:var(--parch)">${CHARS[myCode].n} × ${CHARS[otherCode].n}
+        <span class="badge gold" style="margin-left:6px">${rel.t}</span></div>
+      <div class="meter"><i data-w="${rel.s}"></i></div>
+      <div class="small" style="color:#cfc4e8;font-size:13px">${rel.d}</div>
+    </div>`;
+  requestAnimationFrame(()=>{const el=document.querySelector('#pairOut .meter i');if(el)el.style.width=rel.s+'%'});
+}
+function peek(c){
+  const x=CHARS[c];
+  document.getElementById('peekOut').innerHTML=`
+    <div class="panel" style="margin-top:10px">
+      <b>${x.n}</b> ${x.face} <span style="font-size:11px;color:#8a7fb0">${x.en}</span><br>
+      「${x.tag}」<br><span class="small" style="color:#a99cc9">${x.verdict}</span>
+    </div>`;
+}
+function copyCard(){
+  const r=compute();const C=r.ch,H=HOUSES[r.house];
+  const txt=[
+    `【霍格沃茨测格】我是：${C.n} ${C.face}`,
+    `「${C.tag}」`,
+    C.verdict,
+    `分院结果：${H.name} ${H.emoji}`,
+    `守护神：${C.patronus}`,
+    `魔杖：${C.wand}`,
+    `—— 你也来测：${location.href}`
+  ].join('\n');
+  navigator.clipboard.writeText(txt).then(()=>alert('已复制，去朋友圈发吧。'))
+   .catch(()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('已复制。')});
+}
+function openRoster(){
+  show('s-roster');
+  document.getElementById('s-roster').innerHTML=`
+    <div class="bt-h" style="font-size:16px;letter-spacing:6px">16 人 名 单</div>
+    <div class="small" style="margin-bottom:14px">四条轴（闯/守 · 心/脑 · 群/单 · 闹/稳）各取一值，组合正好 16 个角色。</div>
+    ${Object.entries(CHARS).map(([c,x])=>`
+      <div class="panel" style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:28px">${x.face}</div>
+          <div><b style="font-size:15px;color:var(--gold-soft)">${x.n}</b>
+            <div class="small">${x.en} · ${c.split('').map((v,i)=>AXES[i][v==='1'?'a':'b']).join('/')}</div></div>
+        </div>
+        <div style="margin-top:8px;font-size:13.5px;color:var(--parch)">「${x.tag}」</div>
+        <div class="small" style="margin-top:5px">${x.verdict}</div>
+      </div>`).join('')}
+    <button class="btn" onclick="startQuiz()">进入 大厅</button>
+    <button class="btn ghost" onclick="show('s-intro')">返回</button>`;
+}
+
+/* 星空 */
+(function makeStars(){
+  const box=document.getElementById('stars');
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=(Math.random()*2+1).toFixed(1);
+    s.style.width=sz+'px';s.style.height=sz+'px';
+    s.style.left=(Math.random()*100)+'%';
+    s.style.top=(Math.random()*100)+'%';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    box.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
